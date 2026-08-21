@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=68.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rtpkit"
+version = "0.1.0"
+description = "Parse, analyse and reconstruct RTP streams from raw network traffic."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "dm02"},
+]
+keywords = ["rtp", "voip", "network", "parser", "streaming", "protocol"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Telecommunications Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: System :: Networking",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "mypy>=1.10",
+]
+
+[project.urls]
+Homepage = "https://github.com/dm02/rtpkit"
+Repository = "https://github.com/dm02/rtpkit"
+Issues = "https://github.com/dm02/rtpkit/issues"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["rtpkit*"]
+
+[tool.setuptools.package-data]
+rtpkit = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.coverage.run]
+source = ["src/rtpkit"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 95
