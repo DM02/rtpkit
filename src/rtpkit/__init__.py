@@ -19,6 +19,7 @@ except PackageNotFoundError:  # running from source without an installed distrib
     __version__ = "0.0.0+unknown"
 
 from .builder.rtp_builder import RtpBuilder
+from .codec.g711 import decode_pcma, decode_pcmu, encode_pcma, encode_pcmu
 from .detection.flow import FlowClassification, RtpFlowClassifier
 from .detection.heuristics import RTCP_COLLISION_RANGE, looks_like_rtcp, looks_like_rtp
 from .fuzz.mutate import bit_flip, fuzz_cases, random_bytes, splice_random_bytes, truncate
@@ -26,7 +27,9 @@ from .fuzz.runner import FuzzCrash, FuzzResult, fuzz_parser
 from .io.capture import read_capture, read_capture_lenient
 from .io.decap import decapsulate_udp
 from .io.pcap_reader import read_pcap, read_pcap_lenient
+from .io.pcap_writer import write_pcap
 from .io.pcapng_reader import read_pcapng, read_pcapng_lenient
+from .io.pcapng_writer import write_pcapng
 from .model.errors import (
     CaptureError,
     PcapBufferTooShort,
@@ -35,6 +38,7 @@ from .model.errors import (
     PcapngInvalidByteOrderMagic,
     PcapngMalformedBlock,
     PcapTruncatedRecord,
+    PcapWriteError,
     RtcpBufferTooShort,
     RtcpError,
     RtcpInvalidVersion,
@@ -109,8 +113,10 @@ __all__ = [
     # IO — captures and decapsulation
     "read_pcap",
     "read_pcap_lenient",
+    "write_pcap",
     "read_pcapng",
     "read_pcapng_lenient",
+    "write_pcapng",
     "read_capture",
     "read_capture_lenient",
     "decapsulate_udp",
@@ -130,6 +136,11 @@ __all__ = [
     "RTCP_COLLISION_RANGE",
     "RtpFlowClassifier",
     "FlowClassification",
+    # Codec
+    "decode_pcmu",
+    "encode_pcmu",
+    "decode_pcma",
+    "encode_pcma",
     # Fuzz
     "bit_flip",
     "truncate",
@@ -152,6 +163,7 @@ __all__ = [
     "RtcpLengthMismatch",
     "RtcpMalformedPacket",
     "CaptureError",
+    "PcapWriteError",
     "PcapBufferTooShort",
     "PcapInvalidMagic",
     "PcapTruncatedRecord",

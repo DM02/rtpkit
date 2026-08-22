@@ -20,6 +20,7 @@ __all__ = [
     "RtcpLengthMismatch",
     "RtcpMalformedPacket",
     "CaptureError",
+    "PcapWriteError",
     "PcapBufferTooShort",
     "PcapInvalidMagic",
     "PcapTruncatedRecord",
@@ -158,7 +159,19 @@ class RtcpMalformedPacket(RtcpError):
 
 
 class CaptureError(RtpError):
-    """Base class for all pcap/pcapng capture-file reading errors."""
+    """Base class for all pcap/pcapng capture-file reading and writing errors."""
+
+
+class PcapWriteError(CaptureError):
+    """A packet sequence can't be serialized as a valid classic pcap file.
+
+    Attributes:
+        detail: Human-readable description of the problem.
+    """
+
+    def __init__(self, detail: str) -> None:
+        self.detail = detail
+        super().__init__(f"Cannot write pcap: {detail}")
 
 
 class PcapBufferTooShort(CaptureError):

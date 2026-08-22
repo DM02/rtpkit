@@ -20,11 +20,12 @@ Alpha. Implemented so far:
 - RFC 8285 header extensions (one-byte and two-byte formats)
 - RTP packet building (inverse of parsing)
 - RTCP compound-packet parsing (SR, RR, SDES, BYE, APP) — strict and lenient modes
-- pcap and pcapng file reading, zero-dependency
+- pcap and pcapng file reading and writing, zero-dependency
 - Ethernet / Linux cooked capture / raw-IP → IPv4 / IPv6 → UDP decapsulation, to pull RTP/RTCP candidates out of a capture
 - RTP stream reconstruction: per-SSRC grouping, sequence-number reordering, loss/jitter statistics (RFC 3550)
 - RTP/RTCP detection heuristics for traffic without SDP context, plus the RFC 3551 static payload type table
 - A mutation-based fuzzing harness — protocol-agnostic, usable against rtpkit's own parsers or your own code
+- G.711 (PCMU/PCMA) audio codec — decode RTP payloads to 16-bit PCM (and back), zero-dependency
 
 Planned — see [Roadmap](#roadmap).
 
@@ -96,6 +97,24 @@ for pkt in read_capture(data):  # auto-detects .pcap vs .pcapng
     print(udp.src_ip, udp.dst_ip, rtp.ssrc, rtp.sequence_number)
 ```
 
+Editing a capture — read, filter down to one RTP flow, write back out:
+
+```python
+from rtpkit import read_capture, decapsulate_udp, write_pcap
+
+with open("call.pcap", "rb") as f:
+    data = f.read()
+
+rtp_only = [
+    pkt
+    for pkt in read_capture(data)
+    if (udp := decapsulate_udp(pkt.link_type, pkt.data)) is not None and udp.dst_port == 6730
+]
+
+with open("rtp_only.pcap", "wb") as f:
+    f.write(write_pcap(rtp_only))
+```
+
 Tracking a stream's loss/jitter as you go:
 
 ```python
@@ -122,6 +141,20 @@ result = fuzz_parser(parse_rtp, cases, allowed_exceptions=RtpError)
 assert result.ok, result.crashes  # anything raised outside RtpError is a real bug
 ```
 
+Decoding G.711 audio out of an RTP stream to a WAV file:
+
+```python
+import wave
+from rtpkit.codec.g711 import decode_pcma  # PCMU is decode_pcmu; same shape
+
+pcm = b"".join(decode_pcma(bytes(pkt.payload)) for pkt in ordered_pcma_packets)
+with wave.open("call.wav", "wb") as w:
+    w.setnchannels(1)
+    w.setsampwidth(2)
+    w.setframerate(8000)
+    w.writeframes(pcm)
+```
+
 See [examples/demo.py](examples/demo.py) for a complete walkthrough, including CSRC lists, header extensions,
 padding, error handling, and the zero-copy guarantee.
 
@@ -132,6 +165,8 @@ padding, error handling, and the zero-copy guarantee.
 - [x] RTP packet building
 - [x] RTCP (SR / RR / SDES / BYE / APP)
 - [x] pcap/pcapng ingestion + Ethernet/IP/UDP decapsulation
+- [x] pcap/pcapng writing
+- [x] G.711 (PCMU/PCMA) codec
 - [x] RTP stream reconstruction (SSRC grouping, reorder, jitter/loss stats)
 - [x] RTP/RTCP flow detection heuristics
 - [x] Fuzzing harness
