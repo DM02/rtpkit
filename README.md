@@ -5,6 +5,18 @@
 Parse, build, analyse and (eventually) reconstruct RTP/RTCP traffic — a from-scratch, zero-dependency Python
 library for VoIP and media tooling.
 
+**New here?** Jump to [Getting started](#getting-started) for the fastest path from `pip install` to pulling RTP
+out of a real capture file.
+
+- [Why](#why)
+- [Status](#status)
+- [Install](#install)
+- [Getting started](#getting-started)
+- [More examples](#more-examples)
+- [Roadmap](#roadmap)
+- [Changelog](#changelog)
+- [License](#license)
+
 ## Why
 
 Python has plenty of general-purpose packet sniffers (scapy, dpkt) but no well-maintained library dedicated to RTP
@@ -44,9 +56,12 @@ python -m venv venv
 ./venv/Scripts/pip install -e ".[dev]"
 ```
 
-## Quick start
+## Getting started
 
-Parsing:
+Two starting points cover most of what people reach for rtpkit to do: parsing an RTP packet you already have
+in hand, and pulling RTP out of a capture file you didn't produce yourself.
+
+### 1. Parse a packet
 
 ```python
 from rtpkit import parse_rtp
@@ -56,32 +71,21 @@ print(pkt.payload_type, pkt.sequence_number, hex(pkt.ssrc))
 print(bytes(pkt.payload))  # memoryview — zero-copy view into raw_bytes
 ```
 
-Building:
-
-```python
-from rtpkit import RtpBuilder
-
-pkt = (
-    RtpBuilder()
-    .with_payload_type(8)
-    .with_sequence_number(1000)
-    .with_timestamp(160_000)
-    .with_ssrc(0xDEADBEEF)
-    .with_payload(b"\x80" * 160)
-    .build_packet()
-)
-```
-
-Strict vs. lenient parsing:
+`parse_rtp` is strict: malformed input raises a typed `RtpError` subclass. For real-world/untrusted captures,
+where a few oddball packets are normal, use `parse_rtp_lenient` instead — it logs a warning and does its best
+rather than raising:
 
 ```python
 from rtpkit import parse_rtp, parse_rtp_lenient
 
-parse_rtp(malformed_bytes)  # raises a typed RtpError subclass
-parse_rtp_lenient(malformed_bytes)  # logs a warning, returns a best-effort RtpPacket
+parse_rtp(malformed_bytes)          # raises
+parse_rtp_lenient(malformed_bytes)  # warns, returns a best-effort RtpPacket
 ```
 
-Reading a capture and pulling out RTP candidates:
+### 2. Pull RTP out of a capture file
+
+This is the more common real-world entry point — a `.pcap`/`.pcapng` file with all kinds of traffic mixed
+together, and you want just the RTP:
 
 ```python
 from rtpkit import read_capture, decapsulate_udp, parse_rtp_lenient
@@ -97,7 +101,30 @@ for pkt in read_capture(data):  # auto-detects .pcap vs .pcapng
     print(udp.src_ip, udp.dst_ip, rtp.ssrc, rtp.sequence_number)
 ```
 
-Editing a capture — read, filter down to one RTP flow, write back out:
+See [examples/demo.py](examples/demo.py) for a longer walkthrough of the same two entry points — CSRC lists,
+header extensions, padding, error handling, and the zero-copy guarantee.
+
+## More examples
+
+### Build a packet
+
+```python
+from rtpkit import RtpBuilder
+
+pkt = (
+    RtpBuilder()
+    .with_payload_type(8)
+    .with_sequence_number(1000)
+    .with_timestamp(160_000)
+    .with_ssrc(0xDEADBEEF)
+    .with_payload(b"\x80" * 160)
+    .build_packet()
+)
+```
+
+### Edit a capture
+
+Read, filter down to one RTP flow, write back out:
 
 ```python
 from rtpkit import read_capture, decapsulate_udp, write_pcap
@@ -115,7 +142,7 @@ with open("rtp_only.pcap", "wb") as f:
     f.write(write_pcap(rtp_only))
 ```
 
-Tracking a stream's loss/jitter as you go:
+### Track a stream's loss/jitter
 
 ```python
 from rtpkit import RtpStreamTracker
@@ -129,7 +156,9 @@ print(stats.packet_count, stats.lost_count, stats.fraction_lost, stats.jitter)
 ordered = tracker.ordered_packets(ssrc)  # back in sequence-number order
 ```
 
-Fuzzing a parser (rtpkit's own, or your own code):
+### Fuzz a parser
+
+Works against rtpkit's own parsers, or your own code:
 
 ```python
 from rtpkit import RtpBuilder, RtpError, fuzz_cases, fuzz_parser, parse_rtp
@@ -141,7 +170,7 @@ result = fuzz_parser(parse_rtp, cases, allowed_exceptions=RtpError)
 assert result.ok, result.crashes  # anything raised outside RtpError is a real bug
 ```
 
-Decoding G.711 audio out of an RTP stream to a WAV file:
+### Decode G.711 audio to a WAV file
 
 ```python
 import wave
@@ -154,9 +183,6 @@ with wave.open("call.wav", "wb") as w:
     w.setframerate(8000)
     w.writeframes(pcm)
 ```
-
-See [examples/demo.py](examples/demo.py) for a complete walkthrough, including CSRC lists, header extensions,
-padding, error handling, and the zero-copy guarantee.
 
 ## Roadmap
 
