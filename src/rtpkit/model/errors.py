@@ -44,9 +44,7 @@ class RtpBufferTooShort(RtpError):
     def __init__(self, required: int, actual: int) -> None:
         self.required = required
         self.actual = actual
-        super().__init__(
-            f"Buffer too short: need at least {required} bytes, got {actual}"
-        )
+        super().__init__(f"Buffer too short: need at least {required} bytes, got {actual}")
 
 
 class RtpInvalidVersion(RtpError):
@@ -73,8 +71,7 @@ class RtpPaddingError(RtpError):
         self.padding_value = padding_value
         self.available = available
         super().__init__(
-            f"Invalid padding: last byte says {padding_value}, "
-            f"but only {available} bytes available after header"
+            f"Invalid padding: last byte says {padding_value}, but only {available} bytes available after header"
         )
 
 
@@ -119,9 +116,7 @@ class RtcpBufferTooShort(RtcpError):
     def __init__(self, required: int, actual: int) -> None:
         self.required = required
         self.actual = actual
-        super().__init__(
-            f"RTCP buffer too short: need at least {required} bytes, got {actual}"
-        )
+        super().__init__(f"RTCP buffer too short: need at least {required} bytes, got {actual}")
 
 
 class RtcpInvalidVersion(RtcpError):
@@ -147,9 +142,7 @@ class RtcpLengthMismatch(RtcpError):
     def __init__(self, declared: int, available: int) -> None:
         self.declared = declared
         self.available = available
-        super().__init__(
-            f"RTCP packet declares {declared} bytes, but only {available} available"
-        )
+        super().__init__(f"RTCP packet declares {declared} bytes, but only {available} available")
 
 
 class RtcpMalformedPacket(RtcpError):
@@ -179,9 +172,7 @@ class PcapBufferTooShort(CaptureError):
     def __init__(self, required: int, actual: int) -> None:
         self.required = required
         self.actual = actual
-        super().__init__(
-            f"pcap buffer too short: need at least {required} bytes, got {actual}"
-        )
+        super().__init__(f"pcap buffer too short: need at least {required} bytes, got {actual}")
 
 
 class PcapInvalidMagic(CaptureError):
@@ -207,9 +198,7 @@ class PcapTruncatedRecord(CaptureError):
     def __init__(self, declared: int, available: int) -> None:
         self.declared = declared
         self.available = available
-        super().__init__(
-            f"pcap record declares {declared} captured bytes, but only {available} available"
-        )
+        super().__init__(f"pcap record declares {declared} captured bytes, but only {available} available")
 
 
 class PcapngBufferTooShort(CaptureError):
@@ -223,9 +212,7 @@ class PcapngBufferTooShort(CaptureError):
     def __init__(self, required: int, actual: int) -> None:
         self.required = required
         self.actual = actual
-        super().__init__(
-            f"pcapng buffer too short: need at least {required} bytes, got {actual}"
-        )
+        super().__init__(f"pcapng buffer too short: need at least {required} bytes, got {actual}")
 
 
 class PcapngInvalidByteOrderMagic(CaptureError):

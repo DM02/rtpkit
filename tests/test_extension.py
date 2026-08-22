@@ -35,16 +35,16 @@ class TestOneByteParsing:
         elems = parse_extension_elements(self._make_ext(data))
         assert len(elems) == 1
         assert elems[0].id == 1
-        assert bytes(elems[0].data) == b"\xAA\xBB\xCC"
+        assert bytes(elems[0].data) == b"\xaa\xbb\xcc"
 
     def test_multiple_elements(self) -> None:
         data = bytes([0x30, 0xDD, 0x51, 0xEE, 0xFF, 0x00, 0x00, 0x00])
         elems = parse_extension_elements(self._make_ext(data))
         assert len(elems) == 2
         assert elems[0].id == 3
-        assert bytes(elems[0].data) == b"\xDD"
+        assert bytes(elems[0].data) == b"\xdd"
         assert elems[1].id == 5
-        assert bytes(elems[1].data) == b"\xEE\xFF"
+        assert bytes(elems[1].data) == b"\xee\xff"
 
     def test_padding_between_elements(self) -> None:
         data = bytes([0x20, 0xAA, 0x00, 0x00, 0x40, 0xBB, 0x00, 0x00])
@@ -77,7 +77,7 @@ class TestTwoByteParsing:
         elems = parse_extension_elements(self._make_ext(data))
         assert len(elems) == 1
         assert elems[0].id == 5
-        assert bytes(elems[0].data) == b"\xAA\xBB"
+        assert bytes(elems[0].data) == b"\xaa\xbb"
 
     def test_element_with_zero_length(self) -> None:
         data = bytes([0x0A, 0x00, 0x00, 0x00])

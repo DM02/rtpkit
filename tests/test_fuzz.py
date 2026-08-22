@@ -14,10 +14,10 @@ import pytest
 from rtpkit import (
     CaptureError,
     PcapBufferTooShort,
+    PcapInvalidMagic,
     PcapngBufferTooShort,
     PcapngInvalidByteOrderMagic,
     PcapngMalformedBlock,
-    PcapInvalidMagic,
     RtcpBufferTooShort,
     RtcpError,
     RtpBufferTooShort,
@@ -35,6 +35,7 @@ from rtpkit import (
     read_pcapng,
     read_pcapng_lenient,
 )
+
 from .conftest import (
     build_bye,
     build_epb,
@@ -70,8 +71,8 @@ RTCP_SEEDS = [
     build_bye(sources=(1, 2), reason=b"done"),
 ]
 
-_PCAP_SEED = build_pcap_global_header(link_type=1) + build_pcap_record(1, 0, b"\xaa" * 20) + build_pcap_record(
-    2, 0, b"\xbb" * 5
+_PCAP_SEED = (
+    build_pcap_global_header(link_type=1) + build_pcap_record(1, 0, b"\xaa" * 20) + build_pcap_record(2, 0, b"\xbb" * 5)
 )
 
 _PCAPNG_SEED = build_shb() + build_idb(link_type=1) + build_epb(0, 1_000_000, b"\xaa" * 20)
@@ -82,7 +83,9 @@ _ETH_IPV4_SEED = build_ethernet_frame(
 _ETH_IPV6_SEED = build_ethernet_frame(
     0x86DD, build_ipv6_packet(17, "2001:db8::1", "2001:db8::2", build_udp_datagram(5004, 5006, b"\xaa" * 20))
 )
-_SLL_SEED = build_sll_frame(0x0800, build_ipv4_packet(17, "10.0.0.1", "10.0.0.2", build_udp_datagram(1, 2, b"\xaa" * 20)))
+_SLL_SEED = build_sll_frame(
+    0x0800, build_ipv4_packet(17, "10.0.0.1", "10.0.0.2", build_udp_datagram(1, 2, b"\xaa" * 20))
+)
 _RAW_SEED = build_ipv4_packet(17, "10.0.0.1", "10.0.0.2", build_udp_datagram(1, 2, b"\xaa" * 20))
 
 

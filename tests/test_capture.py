@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from rtpkit import CaptureError, read_capture, read_capture_lenient
+
 from .conftest import build_epb, build_idb, build_pcap_global_header, build_pcap_record, build_shb
 
 

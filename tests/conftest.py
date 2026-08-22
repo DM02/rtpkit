@@ -29,7 +29,7 @@ class RtpBuilder:
 
     def __init__(self) -> None:
         self._version: int = 2
-        self._padding: int = 0      # number of padding bytes (0 = off)
+        self._padding: int = 0  # number of padding bytes (0 = off)
         self._marker: bool = False
         self._payload_type: int = 0
         self._seq: int = 0
@@ -96,12 +96,7 @@ class RtpBuilder:
         has_pad = self._padding > 0
 
         # Byte 0:  V(2) | P(1) | X(1) | CC(4)
-        byte0 = (
-            ((self._version & 0x03) << 6)
-            | (int(has_pad) << 5)
-            | (int(has_ext) << 4)
-            | (cc & 0x0F)
-        )
+        byte0 = ((self._version & 0x03) << 6) | (int(has_pad) << 5) | (int(has_ext) << 4) | (cc & 0x0F)
 
         # Byte 1:  M(1) | PT(7)
         byte1 = (int(self._marker) << 7) | (self._payload_type & 0x7F)
@@ -109,14 +104,16 @@ class RtpBuilder:
         parts: list[bytes] = []
 
         # Fixed header: 12 bytes
-        parts.append(struct.pack(
-            "!BBHII",
-            byte0,
-            byte1,
-            self._seq & 0xFFFF,
-            self._timestamp & 0xFFFFFFFF,
-            self._ssrc & 0xFFFFFFFF,
-        ))
+        parts.append(
+            struct.pack(
+                "!BBHII",
+                byte0,
+                byte1,
+                self._seq & 0xFFFF,
+                self._timestamp & 0xFFFFFFFF,
+                self._ssrc & 0xFFFFFFFF,
+            )
+        )
 
         # CSRC
         if cc:
@@ -315,9 +312,7 @@ def build_ipv4_packet(
 ) -> bytes:
     if total_length is None:
         total_length = ihl_words * 4 + len(payload)
-    header = struct.pack(
-        "!BBHHHBBH", (4 << 4) | ihl_words, 0, total_length, 0, 0, 64, protocol, 0
-    )
+    header = struct.pack("!BBHHHBBH", (4 << 4) | ihl_words, 0, total_length, 0, 0, 64, protocol, 0)
     header += ipaddress.IPv4Address(src_ip).packed + ipaddress.IPv4Address(dst_ip).packed
     header += b"\x00" * ((ihl_words - 5) * 4)
     return header + payload

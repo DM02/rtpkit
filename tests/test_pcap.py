@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from rtpkit import PcapBufferTooShort, PcapInvalidMagic, PcapTruncatedRecord, read_pcap, read_pcap_lenient
+
 from .conftest import build_pcap_global_header, build_pcap_record
 
 
@@ -50,9 +51,9 @@ class TestHappyPath:
         assert bytes(pkt.data) == b"\xff"
 
     def test_nanosecond_resolution(self) -> None:
-        raw = build_pcap_global_header(
-            link_type=1, magic=b"\x4d\x3c\xb2\xa1"
-        ) + build_pcap_record(1, 500_000_000, b"\x01")
+        raw = build_pcap_global_header(link_type=1, magic=b"\x4d\x3c\xb2\xa1") + build_pcap_record(
+            1, 500_000_000, b"\x01"
+        )
         (pkt,) = list(read_pcap(raw))
         assert pkt.timestamp == pytest.approx(1.5)
 

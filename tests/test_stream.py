@@ -8,7 +8,9 @@ from rtpkit import RtpBuilder, RtpStreamTracker
 
 
 def _packet(seq: int, ssrc: int = 1, ts: int = 0, pt: int = 8):
-    return RtpBuilder().with_sequence_number(seq).with_ssrc(ssrc).with_timestamp(ts).with_payload_type(pt).build_packet()
+    return (
+        RtpBuilder().with_sequence_number(seq).with_ssrc(ssrc).with_timestamp(ts).with_payload_type(pt).build_packet()
+    )
 
 
 class TestBasicTracking:

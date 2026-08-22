@@ -109,10 +109,7 @@ def _parse(data: bytes | bytearray | memoryview, *, strict: bool) -> RtpPacket:
         ext_header_end = offset + 4
         if ext_header_end > buf_len:
             if strict:
-                raise RtpExtensionError(
-                    f"Need {ext_header_end} bytes for extension header, "
-                    f"got {buf_len}"
-                )
+                raise RtpExtensionError(f"Need {ext_header_end} bytes for extension header, got {buf_len}")
             logger.warning("Extension header truncated — skipping extension")
         else:
             (ext_profile, ext_word_len) = struct.unpack_from("!HH", data, offset)

@@ -15,7 +15,7 @@ class TestMutators:
     def test_bit_flip_changes_exactly_one_bit(self) -> None:
         original = bytes([0b00000000] * 4)
         mutated = bit_flip(original, random.Random(42))
-        diff_bits = sum(bin(o ^ m).count("1") for o, m in zip(original, mutated))
+        diff_bits = sum(bin(o ^ m).count("1") for o, m in zip(original, mutated, strict=True))
         assert diff_bits == 1
 
     def test_bit_flip_count_flips_multiple_bits(self) -> None:

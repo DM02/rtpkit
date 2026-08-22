@@ -90,9 +90,7 @@ class RtpFlowClassifier:
         self._last_seq = packet.sequence_number
 
     def classify(self) -> FlowClassification:
-        is_likely_rtp = (
-            self._packets_parsed >= self._min_packets and self._ssrc_consistent and self._sequence_plausible
-        )
+        is_likely_rtp = self._packets_parsed >= self._min_packets and self._ssrc_consistent and self._sequence_plausible
         return FlowClassification(
             packets_observed=self._packets_observed,
             packets_parsed=self._packets_parsed,

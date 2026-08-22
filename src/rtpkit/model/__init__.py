@@ -31,7 +31,6 @@ from .net import DecapsulatedUdp
 from .packet import RtpPacket
 from .payload_types import DYNAMIC_PAYLOAD_TYPE_RANGE, MediaType, PayloadTypeInfo, lookup_payload_type
 from .pcap import PcapPacket
-from .stream import RtpStreamStats
 from .rtcp import (
     ApplicationDefined,
     Goodbye,
@@ -46,6 +45,7 @@ from .rtcp import (
     SenderReport,
     SourceDescription,
 )
+from .stream import RtpStreamStats
 
 __all__ = [
     "RtpPacket",

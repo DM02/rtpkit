@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import struct
-
 import pytest
 
 from rtpkit import (
@@ -14,6 +12,7 @@ from rtpkit import (
     parse_rtp,
     parse_rtp_lenient,
 )
+
 from .conftest import RtpBuilder
 
 
@@ -97,7 +96,7 @@ class TestHappyPath:
 
     def test_full_combination(self) -> None:
         csrc_list = [0xAAAAAAAA, 0xBBBBBBBB]
-        ext_data = b"\xDE\xAD\xBE\xEF"
+        ext_data = b"\xde\xad\xbe\xef"
         payload = b"\x01" * 50
         raw = (
             RtpBuilder()
@@ -151,10 +150,10 @@ class TestEdgeCases:
         assert len(pkt.header_extension.data) == 0
 
     def test_padding_one_byte(self) -> None:
-        raw = RtpBuilder().with_payload(b"\xAA" * 10).with_padding(1).build()
+        raw = RtpBuilder().with_payload(b"\xaa" * 10).with_padding(1).build()
         pkt = parse_rtp(raw)
         assert pkt.padding_size == 1
-        assert bytes(pkt.payload) == b"\xAA" * 10
+        assert bytes(pkt.payload) == b"\xaa" * 10
 
     def test_padding_consumes_all_after_header(self) -> None:
         raw = RtpBuilder().with_payload(b"").with_padding(4).build()
@@ -237,10 +236,10 @@ class TestLenientMode:
 
     @pytest.mark.parametrize("version", [0, 1, 3])
     def test_wrong_version_no_raise(self, version: int) -> None:
-        raw = RtpBuilder().with_version(version).with_payload(b"\xAA").build()
+        raw = RtpBuilder().with_version(version).with_payload(b"\xaa").build()
         pkt = parse_rtp_lenient(raw)
         assert pkt.version == version
-        assert bytes(pkt.payload) == b"\xAA"
+        assert bytes(pkt.payload) == b"\xaa"
 
     def test_broken_extension_skipped(self) -> None:
         raw = RtpBuilder().with_extension(profile=0xBEDE, data=b"\x00" * 8).build()
@@ -250,7 +249,7 @@ class TestLenientMode:
         assert pkt.header_extension is None
 
     def test_padding_overflow_ignored(self) -> None:
-        raw = bytearray(RtpBuilder().with_payload(b"\xBB" * 4).with_padding(1).build())
+        raw = bytearray(RtpBuilder().with_payload(b"\xbb" * 4).with_padding(1).build())
         raw[-1] = 200
         pkt = parse_rtp_lenient(bytes(raw))
         assert pkt.padding is True
@@ -300,17 +299,17 @@ class TestZeroCopy:
         assert pkt.payload[0] == 0xFF
 
     def test_accepts_memoryview_input(self) -> None:
-        raw = RtpBuilder().with_payload(b"\xAB").build()
+        raw = RtpBuilder().with_payload(b"\xab").build()
         pkt = parse_rtp(memoryview(bytearray(raw)))
-        assert bytes(pkt.payload) == b"\xAB"
+        assert bytes(pkt.payload) == b"\xab"
 
     def test_accepts_bytes(self) -> None:
-        pkt = parse_rtp(RtpBuilder().with_payload(b"\xCD").build())
-        assert bytes(pkt.payload) == b"\xCD"
+        pkt = parse_rtp(RtpBuilder().with_payload(b"\xcd").build())
+        assert bytes(pkt.payload) == b"\xcd"
 
     def test_accepts_bytearray(self) -> None:
-        pkt = parse_rtp(bytearray(RtpBuilder().with_payload(b"\xEF").build()))
-        assert bytes(pkt.payload) == b"\xEF"
+        pkt = parse_rtp(bytearray(RtpBuilder().with_payload(b"\xef").build()))
+        assert bytes(pkt.payload) == b"\xef"
 
 
 class TestImmutability:
@@ -324,4 +323,4 @@ class TestImmutability:
     def test_cannot_set_payload(self) -> None:
         pkt = parse_rtp(RtpBuilder().with_payload(b"\x00").build())
         with pytest.raises(AttributeError):
-            pkt.payload = memoryview(b"\xFF")  # type: ignore[misc]
+            pkt.payload = memoryview(b"\xff")  # type: ignore[misc]

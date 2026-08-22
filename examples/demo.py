@@ -6,33 +6,36 @@ Odpal:
     .\\venv\\Scripts\\python.exe examples/demo.py
 """
 
+import logging
 import struct
+
 from rtpkit import (
-    parse_rtp,
-    parse_rtp_lenient,
-    parse_extension_elements,
     RtpBufferTooShort,
     RtpInvalidVersion,
     RtpPaddingError,
+    parse_extension_elements,
+    parse_rtp,
+    parse_rtp_lenient,
 )
 
 
 def separator(title: str) -> None:
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"  {title}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
 
 # 1. Reczne budowanie pakietu RTP z surowych bajtow
 
 separator("1. Budujemy pakiet RTP recznie z bajtow")
 
-header = struct.pack("!BBHII",
-    0x80,           # V=2, P=0, X=0, CC=0
-    0x08,           # M=0, PT=8
-    1000,           # sequence number
-    160_000,        # timestamp
-    0xDEADBEEF,     # SSRC
+header = struct.pack(
+    "!BBHII",
+    0x80,  # V=2, P=0, X=0, CC=0
+    0x08,  # M=0, PT=8
+    1000,  # sequence number
+    160_000,  # timestamp
+    0xDEADBEEF,  # SSRC
 )
 
 payload = bytes([0x55, 0xAA] * 10)
@@ -67,14 +70,15 @@ print(f"total_size:      {pkt.total_size} bajtow")
 
 separator("3. Pakiet z CSRC (konferencja)")
 
-header_with_csrc = struct.pack("!BBHII II",
-    0x82,           # V=2, P=0, X=0, CC=2
-    0x08,           # M=0, PT=8
+header_with_csrc = struct.pack(
+    "!BBHII II",
+    0x82,  # V=2, P=0, X=0, CC=2
+    0x08,  # M=0, PT=8
     1001,
     160_160,
-    0xCAFEBABE,     # SSRC (mikser)
-    0x11111111,     # CSRC 1
-    0x22222222,     # CSRC 2
+    0xCAFEBABE,  # SSRC (mikser)
+    0x11111111,  # CSRC 1
+    0x22222222,  # CSRC 2
 )
 raw2 = header_with_csrc + b"\x00" * 10
 
@@ -90,15 +94,19 @@ for i, csrc in enumerate(pkt2.csrc):
 separator("4. Pakiet z rozszerzeniem naglowka (0xBEDE)")
 
 ext_header = struct.pack("!HH", 0xBEDE, 1)
-ext_data = bytes([
-    0x11,       # ID=1, length=1 -> 2 bajty
-    0x05, 0x0A, # dane elementu (np. audio level)
-    0x00,       # padding do 4 bajtow
-])
+ext_data = bytes(
+    [
+        0x11,  # ID=1, length=1 -> 2 bajty
+        0x05,
+        0x0A,  # dane elementu (np. audio level)
+        0x00,  # padding do 4 bajtow
+    ]
+)
 
-header_ext = struct.pack("!BBHII",
-    0x90,       # V=2, P=0, X=1, CC=0
-    111,        # M=0, PT=111 (Opus)
+header_ext = struct.pack(
+    "!BBHII",
+    0x90,  # V=2, P=0, X=1, CC=0
+    111,  # M=0, PT=111 (Opus)
     5000,
     480_000,
     0xABCD1234,
@@ -121,14 +129,15 @@ for elem in elements:
 
 separator("5. Pakiet z paddingiem")
 
-header_pad = struct.pack("!BBHII",
-    0xA0,       # V=2, P=1, X=0, CC=0
+header_pad = struct.pack(
+    "!BBHII",
+    0xA0,  # V=2, P=1, X=0, CC=0
     0x08,
     2000,
     320_000,
     0x99887766,
 )
-audio = b"\xAA" * 16
+audio = b"\xaa" * 16
 padding = b"\x00\x00\x00\x04"  # 4 bajty paddingu
 
 raw4 = header_pad + audio + padding
@@ -174,7 +183,6 @@ except RtpPaddingError as e:
 
 separator("7. Lenient mode - parsuj mimo bledow")
 
-import logging
 logging.basicConfig(level=logging.WARNING, format="  [!] %(message)s")
 
 print("-> Parsujemy pakiet z version=3 (lenient):")

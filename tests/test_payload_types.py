@@ -19,9 +19,7 @@ from rtpkit import DYNAMIC_PAYLOAD_TYPE_RANGE, MediaType, lookup_payload_type
         (33, "MP2T", MediaType.AUDIO_VIDEO, 90000, None),
     ],
 )
-def test_known_static_entries(
-    pt: int, name: str, media_type: MediaType, clock_rate: int, channels: int | None
-) -> None:
+def test_known_static_entries(pt: int, name: str, media_type: MediaType, clock_rate: int, channels: int | None) -> None:
     info = lookup_payload_type(pt)
     assert info is not None
     assert info.name == name

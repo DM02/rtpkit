@@ -13,6 +13,7 @@ from rtpkit import (
     read_pcapng,
     read_pcapng_lenient,
 )
+
 from .conftest import build_epb, build_idb, build_pcapng_block, build_shb, build_spb
 
 
@@ -81,7 +82,8 @@ class TestHappyPath:
         assert pkt.timestamp == pytest.approx(2.0)
 
     def test_idb_with_malformed_option_length_defaults_to_microseconds(self) -> None:
-        idb_body = struct.pack("<HHI", 1, 0, 262144) + struct.pack("<HH", 9, 100)  # declares 100-byte value, none follow
+        # declares a 100-byte option value, but none follow
+        idb_body = struct.pack("<HHI", 1, 0, 262144) + struct.pack("<HH", 9, 100)
         raw = build_shb() + build_pcapng_block(0x00000001, idb_body) + build_epb(0, 2_000_000, b"\x01")
         (pkt,) = list(read_pcapng(raw))
         assert pkt.timestamp == pytest.approx(2.0)

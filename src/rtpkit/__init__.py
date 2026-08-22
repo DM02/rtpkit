@@ -52,7 +52,6 @@ from .model.net import DecapsulatedUdp
 from .model.packet import RtpPacket
 from .model.payload_types import DYNAMIC_PAYLOAD_TYPE_RANGE, MediaType, PayloadTypeInfo, lookup_payload_type
 from .model.pcap import PcapPacket
-from .model.stream import RtpStreamStats
 from .model.rtcp import (
     ApplicationDefined,
     Goodbye,
@@ -67,6 +66,7 @@ from .model.rtcp import (
     SenderReport,
     SourceDescription,
 )
+from .model.stream import RtpStreamStats
 from .parser.rtcp_parser import parse_rtcp, parse_rtcp_lenient
 from .parser.rtp_parser import parse_rtp, parse_rtp_lenient
 from .stream.tracker import RtpStreamTracker

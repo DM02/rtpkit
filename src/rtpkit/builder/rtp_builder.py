@@ -103,17 +103,10 @@ class RtpBuilder:
         has_ext = self._ext_profile is not None
         has_pad = self._padding > 0
 
-        byte0 = (
-            ((self._version & 0x03) << 6)
-            | (int(has_pad) << 5)
-            | (int(has_ext) << 4)
-            | (cc & 0x0F)
-        )
+        byte0 = ((self._version & 0x03) << 6) | (int(has_pad) << 5) | (int(has_ext) << 4) | (cc & 0x0F)
         byte1 = (int(self._marker) << 7) | (self._payload_type & 0x7F)
 
-        parts: list[bytes] = [
-            struct.pack("!BBHII", byte0, byte1, self._seq, self._timestamp, self._ssrc)
-        ]
+        parts: list[bytes] = [struct.pack("!BBHII", byte0, byte1, self._seq, self._timestamp, self._ssrc)]
 
         if cc:
             parts.append(struct.pack(f"!{cc}I", *self._csrc))

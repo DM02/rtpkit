@@ -1,5 +1,7 @@
 # rtpkit
 
+[![CI](https://github.com/dm02/rtpkit/actions/workflows/ci.yml/badge.svg)](https://github.com/dm02/rtpkit/actions/workflows/ci.yml)
+
 Parse, build, analyse and (eventually) reconstruct RTP/RTCP traffic — a from-scratch, zero-dependency Python
 library for VoIP and media tooling.
 
@@ -74,7 +76,7 @@ Strict vs. lenient parsing:
 ```python
 from rtpkit import parse_rtp, parse_rtp_lenient
 
-parse_rtp(malformed_bytes)          # raises a typed RtpError subclass
+parse_rtp(malformed_bytes)  # raises a typed RtpError subclass
 parse_rtp_lenient(malformed_bytes)  # logs a warning, returns a best-effort RtpPacket
 ```
 
@@ -133,6 +135,10 @@ padding, error handling, and the zero-copy guarantee.
 - [x] RTP stream reconstruction (SSRC grouping, reorder, jitter/loss stats)
 - [x] RTP/RTCP flow detection heuristics
 - [x] Fuzzing harness
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

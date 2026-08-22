@@ -92,9 +92,7 @@ def _parse_compound(data: bytes | bytearray | memoryview, *, strict: bool) -> tu
         if packet_end > buf_len:
             if strict:
                 raise RtcpLengthMismatch(declared=packet_len, available=remaining)
-            logger.warning(
-                "RTCP packet declares %d bytes, only %d available — stopping", packet_len, remaining
-            )
+            logger.warning("RTCP packet declares %d bytes, only %d available — stopping", packet_len, remaining)
             break
 
         body = data[offset + _HEADER_SIZE : packet_end]

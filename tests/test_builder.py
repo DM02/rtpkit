@@ -7,8 +7,8 @@ import pytest
 from rtpkit import (
     ExtensionElement,
     ExtensionProfile,
-    RtpBuildError,
     RtpBuilder,
+    RtpBuildError,
     build_header_extension,
     parse_extension_elements,
     parse_rtp,
@@ -121,7 +121,7 @@ def test_build_bytes_matches_parse_rtp() -> None:
         lambda: RtpBuilder().with_padding(256),
     ],
 )
-def test_build_rejects_out_of_range_fields(make: "object") -> None:
+def test_build_rejects_out_of_range_fields(make: object) -> None:
     builder = make()  # type: ignore[operator]
     with pytest.raises(RtpBuildError):
         builder.build()

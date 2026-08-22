@@ -5,6 +5,7 @@ from __future__ import annotations
 import struct
 
 from rtpkit import decapsulate_udp
+
 from .conftest import (
     build_ethernet_frame,
     build_ipv4_packet,
