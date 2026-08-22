@@ -78,7 +78,7 @@ rather than raising:
 ```python
 from rtpkit import parse_rtp, parse_rtp_lenient
 
-parse_rtp(malformed_bytes)          # raises
+parse_rtp(malformed_bytes)  # raises
 parse_rtp_lenient(malformed_bytes)  # warns, returns a best-effort RtpPacket
 ```
 
