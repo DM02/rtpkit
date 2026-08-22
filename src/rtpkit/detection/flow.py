@@ -25,17 +25,22 @@ class FlowClassification:
     """Result of :meth:`RtpFlowClassifier.classify`.
 
     Attributes:
-        packets_observed:   Total calls to :meth:`~RtpFlowClassifier.observe`.
-        packets_parsed:     Of those, how many parsed as structurally valid RTP.
-        ssrc_consistent:    Whether every parsed packet shared one SSRC.
-        sequence_plausible: Whether consecutive sequence-number deltas stayed small.
-        is_likely_rtp:      True iff enough packets parsed and both signals held.
+        packets_observed:     Total calls to :meth:`~RtpFlowClassifier.observe`.
+        packets_parsed:       Of those, how many parsed as structurally valid RTP.
+        ssrc_consistent:      Whether every parsed packet shared one SSRC.
+        sequence_plausible:   Whether consecutive sequence-number deltas stayed small.
+        sequence_progressing: Whether the sequence number actually varied across packets
+                               (a frozen/repeated value is a broadcast/beacon protocol that
+                               happens to be RTP-shaped, not a real RTP stream — RTP always
+                               increments per packet).
+        is_likely_rtp:        True iff enough packets parsed and every signal held.
     """
 
     packets_observed: int
     packets_parsed: int
     ssrc_consistent: bool
     sequence_plausible: bool
+    sequence_progressing: bool
     is_likely_rtp: bool
 
 
@@ -68,6 +73,7 @@ class RtpFlowClassifier:
         self._ssrc_consistent = True
         self._last_seq: int | None = None
         self._sequence_plausible = True
+        self._distinct_seqs: set[int] = set()
 
     def observe(self, data: bytes | bytearray | memoryview) -> None:
         self._packets_observed += 1
@@ -88,13 +94,21 @@ class RtpFlowClassifier:
             if abs(_wrapped_delta(self._last_seq, packet.sequence_number)) > self._seq_jump_threshold:
                 self._sequence_plausible = False
         self._last_seq = packet.sequence_number
+        self._distinct_seqs.add(packet.sequence_number)
 
     def classify(self) -> FlowClassification:
-        is_likely_rtp = self._packets_parsed >= self._min_packets and self._ssrc_consistent and self._sequence_plausible
+        sequence_progressing = len(self._distinct_seqs) > 1
+        is_likely_rtp = (
+            self._packets_parsed >= self._min_packets
+            and self._ssrc_consistent
+            and self._sequence_plausible
+            and sequence_progressing
+        )
         return FlowClassification(
             packets_observed=self._packets_observed,
             packets_parsed=self._packets_parsed,
             ssrc_consistent=self._ssrc_consistent,
             sequence_plausible=self._sequence_plausible,
+            sequence_progressing=sequence_progressing,
             is_likely_rtp=is_likely_rtp,
         )

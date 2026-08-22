@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from rtpkit import RtpBuilder, RtpFlowClassifier, looks_like_rtcp, looks_like_rtp
 
-from .conftest import build_rr, build_sr
+from .conftest import REAL_BROADCAST_FALSE_POSITIVE, REAL_RTP_STREAM_A, REAL_RTP_STREAM_B, build_rr, build_sr
 
 
 class TestLooksLikeRtp:
@@ -56,7 +56,22 @@ class TestRtpFlowClassifier:
         assert result.packets_parsed == 6
         assert result.ssrc_consistent is True
         assert result.sequence_plausible is True
+        assert result.sequence_progressing is True
         assert result.is_likely_rtp is True
+
+    def test_frozen_sequence_number_rejected(self) -> None:
+        # a real broadcast/beacon protocol observed in the wild: fixed SSRC, fixed
+        # sequence number repeated on every packet, byte-compatible with an RTP header
+        classifier = RtpFlowClassifier(min_packets=4)
+        for _ in range(6):
+            raw = RtpBuilder().with_ssrc(0xE7A63893).with_sequence_number(100).build()
+            classifier.observe(raw)
+
+        result = classifier.classify()
+        assert result.ssrc_consistent is True
+        assert result.sequence_plausible is True
+        assert result.sequence_progressing is False
+        assert result.is_likely_rtp is False
 
     def test_too_few_packets_not_classified_as_rtp(self) -> None:
         classifier = RtpFlowClassifier(min_packets=4)
@@ -110,3 +125,37 @@ class TestRtpFlowClassifier:
 
         result = classifier.classify()
         assert result.sequence_plausible is True
+
+
+class TestRealCaptureRegression:
+    """Regression coverage from a real mixed SIP/RTP LAN capture (see conftest.py)."""
+
+    def test_real_rtp_stream_a_classified_as_rtp(self) -> None:
+        classifier = RtpFlowClassifier(min_packets=4)
+        for raw in REAL_RTP_STREAM_A:
+            classifier.observe(raw)
+
+        result = classifier.classify()
+        assert result.packets_parsed == len(REAL_RTP_STREAM_A)
+        assert result.is_likely_rtp is True
+
+    def test_real_rtp_stream_b_classified_as_rtp(self) -> None:
+        classifier = RtpFlowClassifier(min_packets=4)
+        for raw in REAL_RTP_STREAM_B:
+            classifier.observe(raw)
+
+        result = classifier.classify()
+        assert result.packets_parsed == len(REAL_RTP_STREAM_B)
+        assert result.is_likely_rtp is True
+
+    def test_real_broadcast_false_positive_rejected(self) -> None:
+        # the exact payload that motivated sequence_progressing: repeated 3+ times to
+        # clear min_packets, since the capture only had 2 distinct copies available
+        classifier = RtpFlowClassifier(min_packets=4)
+        for raw in REAL_BROADCAST_FALSE_POSITIVE * 3:
+            classifier.observe(raw)
+
+        result = classifier.classify()
+        assert result.ssrc_consistent is True
+        assert result.sequence_progressing is False
+        assert result.is_likely_rtp is False

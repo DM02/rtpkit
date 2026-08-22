@@ -37,6 +37,9 @@ from rtpkit import (
 )
 
 from .conftest import (
+    REAL_BROADCAST_FALSE_POSITIVE,
+    REAL_RTP_STREAM_A,
+    REAL_RTP_STREAM_B,
     build_bye,
     build_epb,
     build_ethernet_frame,
@@ -62,6 +65,9 @@ RTP_SEEDS = [
     RtpBuilder().with_payload_type(8).with_sequence_number(1000).with_payload(b"\xaa" * 160).build(),
     RtpBuilder().with_csrc([1, 2, 3]).with_extension(0xBEDE, b"\x11\x22\x33\x00").with_payload(b"\x00" * 20).build(),
     RtpBuilder().with_padding(4).with_payload(b"\xaa" * 16).build(),
+    *REAL_RTP_STREAM_A,
+    *REAL_RTP_STREAM_B,
+    *REAL_BROADCAST_FALSE_POSITIVE,  # not RTP, but a real byte pattern that's close enough to be interesting
 ]
 
 RTCP_SEEDS = [
