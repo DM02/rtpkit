@@ -11,6 +11,12 @@ Quick start::
 from __future__ import annotations
 
 import logging
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("rtpkit")
+except PackageNotFoundError:  # running from source without an installed distribution
+    __version__ = "0.0.0+unknown"
 
 from .builder.rtp_builder import RtpBuilder
 from .detection.flow import FlowClassification, RtpFlowClassifier
@@ -72,6 +78,7 @@ from .parser.rtp_parser import parse_rtp, parse_rtp_lenient
 from .stream.tracker import RtpStreamTracker
 
 __all__ = [
+    "__version__",
     # Core
     "parse_rtp",
     "parse_rtp_lenient",
