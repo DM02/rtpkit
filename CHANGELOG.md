@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-24
+
 ### Added
 - CI (GitHub Actions): lint, format check, type check, and the test suite across Python 3.11-3.13 on Linux and Windows
 - `ruff` for linting and formatting, wired into CI
