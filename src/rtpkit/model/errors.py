@@ -27,6 +27,7 @@ __all__ = [
     "PcapngBufferTooShort",
     "PcapngInvalidByteOrderMagic",
     "PcapngMalformedBlock",
+    "EncapsulationError",
 ]
 
 
@@ -250,3 +251,15 @@ class PcapngMalformedBlock(CaptureError):
     def __init__(self, detail: str) -> None:
         self.detail = detail
         super().__init__(f"Malformed pcapng block: {detail}")
+
+
+class EncapsulationError(RtpError):
+    """A UDP payload can't be wrapped into a valid link/IP/UDP frame.
+
+    Attributes:
+        detail: Human-readable description of the problem.
+    """
+
+    def __init__(self, detail: str) -> None:
+        self.detail = detail
+        super().__init__(f"Cannot encapsulate UDP payload: {detail}")

@@ -26,12 +26,14 @@ from .fuzz.mutate import bit_flip, fuzz_cases, random_bytes, splice_random_bytes
 from .fuzz.runner import FuzzCrash, FuzzResult, fuzz_parser
 from .io.capture import read_capture, read_capture_lenient
 from .io.decap import decapsulate_udp
+from .io.encap import encapsulate_udp
 from .io.pcap_reader import read_pcap, read_pcap_lenient
 from .io.pcap_writer import write_pcap
 from .io.pcapng_reader import read_pcapng, read_pcapng_lenient
 from .io.pcapng_writer import write_pcapng
 from .model.errors import (
     CaptureError,
+    EncapsulationError,
     PcapBufferTooShort,
     PcapInvalidMagic,
     PcapngBufferTooShort,
@@ -120,6 +122,7 @@ __all__ = [
     "read_capture",
     "read_capture_lenient",
     "decapsulate_udp",
+    "encapsulate_udp",
     "PcapPacket",
     "DecapsulatedUdp",
     # Stream
@@ -170,6 +173,7 @@ __all__ = [
     "PcapngBufferTooShort",
     "PcapngInvalidByteOrderMagic",
     "PcapngMalformedBlock",
+    "EncapsulationError",
 ]
 
 # Library-level NullHandler — no output unless the consumer configures logging.

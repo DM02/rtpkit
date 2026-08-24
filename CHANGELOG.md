@@ -11,6 +11,8 @@ All notable changes to this project are documented in this file.
 - `rtpkit.codec.g711` — pure-Python G.711 (PCMU/PCMA) decode/encode, verified bit-exact against CPython's
   `audioop` reference for decoding, and provably optimal (nearest-neighbour against that same table) for encoding
 - `rtpkit.__version__`
+- `encapsulate_udp` — the inverse of `decapsulate_udp`: wraps a UDP payload in a link/IP/UDP frame (Ethernet/Linux
+  cooked capture/raw IP, IPv4/IPv6, correct checksums), for building synthetic capture files from scratch
 
 ### Fixed
 - `RtpFlowClassifier` false positive on non-RTP traffic with a frozen SSRC/sequence number (found by testing

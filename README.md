@@ -33,7 +33,7 @@ Alpha. Implemented so far:
 - RTP packet building (inverse of parsing)
 - RTCP compound-packet parsing (SR, RR, SDES, BYE, APP) — strict and lenient modes
 - pcap and pcapng file reading and writing, zero-dependency
-- Ethernet / Linux cooked capture / raw-IP → IPv4 / IPv6 → UDP decapsulation, to pull RTP/RTCP candidates out of a capture
+- Ethernet / Linux cooked capture / raw-IP → IPv4 / IPv6 → UDP decapsulation (and the inverse — building a synthetic frame from a UDP payload)
 - RTP stream reconstruction: per-SSRC grouping, sequence-number reordering, loss/jitter statistics (RFC 3550)
 - RTP/RTCP detection heuristics for traffic without SDP context, plus the RFC 3551 static payload type table
 - A mutation-based fuzzing harness — protocol-agnostic, usable against rtpkit's own parsers or your own code
@@ -184,13 +184,29 @@ with wave.open("call.wav", "wb") as w:
     w.writeframes(pcm)
 ```
 
+### Build a synthetic capture from scratch
+
+The inverse of decapsulation — wrap an RTP packet in a real link/IP/UDP frame (correct checksums included)
+and write it out, without ever touching a real network:
+
+```python
+from rtpkit import RtpBuilder, encapsulate_udp, PcapPacket, write_pcap
+
+rtp = RtpBuilder().with_payload_type(8).with_sequence_number(0).with_payload(b"\xd5" * 160).build()
+frame = encapsulate_udp(1, "192.168.1.10", "192.168.1.20", 6730, 6730, rtp)  # 1 = Ethernet
+
+pkt = PcapPacket(timestamp=0.0, captured_length=len(frame), original_length=len(frame), link_type=1, data=frame)
+with open("synthetic.pcap", "wb") as f:
+    f.write(write_pcap([pkt]))
+```
+
 ## Roadmap
 
 - [x] RTP header parsing (RFC 3550), strict + lenient modes
 - [x] RFC 8285 header extensions (one-byte / two-byte)
 - [x] RTP packet building
 - [x] RTCP (SR / RR / SDES / BYE / APP)
-- [x] pcap/pcapng ingestion + Ethernet/IP/UDP decapsulation
+- [x] pcap/pcapng ingestion + Ethernet/IP/UDP decapsulation (and encapsulation)
 - [x] pcap/pcapng writing
 - [x] G.711 (PCMU/PCMA) codec
 - [x] RTP stream reconstruction (SSRC grouping, reorder, jitter/loss stats)

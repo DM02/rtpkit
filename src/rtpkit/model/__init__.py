@@ -2,6 +2,7 @@
 
 from .errors import (
     CaptureError,
+    EncapsulationError,
     PcapBufferTooShort,
     PcapInvalidMagic,
     PcapngBufferTooShort,
@@ -93,4 +94,5 @@ __all__ = [
     "PcapngBufferTooShort",
     "PcapngInvalidByteOrderMagic",
     "PcapngMalformedBlock",
+    "EncapsulationError",
 ]
