@@ -18,6 +18,7 @@ try:
 except PackageNotFoundError:  # running from source without an installed distribution
     __version__ = "0.0.0+unknown"
 
+from .builder.rtcp_builder import build_rtcp
 from .builder.rtp_builder import RtpBuilder
 from .codec.g711 import decode_pcma, decode_pcmu, encode_pcma, encode_pcmu
 from .detection.flow import FlowClassification, RtpFlowClassifier
@@ -42,6 +43,7 @@ from .model.errors import (
     PcapTruncatedRecord,
     PcapWriteError,
     RtcpBufferTooShort,
+    RtcpBuildError,
     RtcpError,
     RtcpInvalidVersion,
     RtcpLengthMismatch,
@@ -100,6 +102,7 @@ __all__ = [
     # RTCP
     "parse_rtcp",
     "parse_rtcp_lenient",
+    "build_rtcp",
     "RtcpPacket",
     "RtcpPacketType",
     "SdesItemType",
@@ -165,6 +168,7 @@ __all__ = [
     "RtcpInvalidVersion",
     "RtcpLengthMismatch",
     "RtcpMalformedPacket",
+    "RtcpBuildError",
     "CaptureError",
     "PcapWriteError",
     "PcapBufferTooShort",

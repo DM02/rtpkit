@@ -31,7 +31,7 @@ Alpha. Implemented so far:
 - RTP header parsing (RFC 3550) — strict and lenient modes
 - RFC 8285 header extensions (one-byte and two-byte formats)
 - RTP packet building (inverse of parsing)
-- RTCP compound-packet parsing (SR, RR, SDES, BYE, APP) — strict and lenient modes
+- RTCP compound-packet parsing and building (SR, RR, SDES, BYE, APP) — strict and lenient parsing modes
 - pcap and pcapng file reading and writing, zero-dependency
 - Ethernet / Linux cooked capture / raw-IP → IPv4 / IPv6 → UDP decapsulation (and the inverse — building a synthetic frame from a UDP payload)
 - RTP stream reconstruction: per-SSRC grouping, sequence-number reordering, loss/jitter statistics (RFC 3550)
@@ -120,6 +120,20 @@ pkt = (
     .with_payload(b"\x80" * 160)
     .build_packet()
 )
+```
+
+RTCP has no fluent builder — five distinct packet shapes, not one packet with many options, so `build_rtcp` just serializes the model dataclasses you already have:
+
+```python
+from rtpkit import SenderReport, SenderInfo, build_rtcp
+
+sr = SenderReport(
+    ssrc=0xDEADBEEF,
+    sender_info=SenderInfo(ntp_seconds=0, ntp_fraction=0, rtp_timestamp=160_000, packet_count=100, octet_count=16_000),
+    report_blocks=(),
+    padding_size=0,
+)
+raw = build_rtcp([sr])  # pass more packets for one compound buffer
 ```
 
 ### Edit a capture

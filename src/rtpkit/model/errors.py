@@ -19,6 +19,7 @@ __all__ = [
     "RtcpInvalidVersion",
     "RtcpLengthMismatch",
     "RtcpMalformedPacket",
+    "RtcpBuildError",
     "CaptureError",
     "PcapWriteError",
     "PcapBufferTooShort",
@@ -104,7 +105,7 @@ class RtpBuildError(RtpError):
 
 
 class RtcpError(RtpError):
-    """Base class for all RTCP parsing errors."""
+    """Base class for all RTCP parsing and building errors."""
 
 
 class RtcpBufferTooShort(RtcpError):
@@ -157,6 +158,20 @@ class RtcpMalformedPacket(RtcpError):
     def __init__(self, detail: str) -> None:
         self.detail = detail
         super().__init__(f"Malformed RTCP packet: {detail}")
+
+
+class RtcpBuildError(RtcpError):
+    """A builder was given an out-of-range or otherwise invalid field value.
+
+    Attributes:
+        field:  Name of the offending field.
+        detail: Human-readable description of the problem.
+    """
+
+    def __init__(self, field: str, detail: str) -> None:
+        self.field = field
+        self.detail = detail
+        super().__init__(f"Invalid value for '{field}': {detail}")
 
 
 class CaptureError(RtpError):
