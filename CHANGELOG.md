@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-25
+
 ### Added
 - `build_rtcp` — the inverse of `parse_rtcp`: serializes SR/RR/SDES/BYE/APP model dataclasses into a compound
   RTCP buffer, completing the parse/build round trip for RTCP the same way `RtpBuilder` does for RTP
